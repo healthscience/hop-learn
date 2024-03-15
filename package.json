@@ -1,6 +1,6 @@
 {
   "name": "hop-learn",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "conduct local ML",
   "main": "src/index.js",
   "directories": {
@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/healthscience/hop-learn/issues"
   },
-  "homepage": "https://github.com/healthscience/hop-learn#readme"
+  "homepage": "https://github.com/healthscience/hop-learn#readme",
+  "dependencies": {
+    "cale-evolution": "^0.0.8"
+  }
 }
