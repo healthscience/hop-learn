@@ -1,2 +1,2 @@
-# hop-llm
-interface to local LLM's
+# hop-learn
+interface to local ML & LLM's
