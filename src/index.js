@@ -60,4 +60,4 @@ class HopLearn extends EventEmitter {
 
 }
 
-export default HopEvolution
+export default HopLearn
