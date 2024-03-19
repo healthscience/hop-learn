@@ -16,8 +16,8 @@ class HopLearn extends EventEmitter {
 
   constructor() {
     super()
-    this.openOrchestra()
     this.caleEvolution = {}
+    this.openOrchestra()
   }
 
   /**
@@ -29,6 +29,7 @@ class HopLearn extends EventEmitter {
     console.log('conductor bring ML local to be')
     // need a dynamtic way to do this, just like system in ECS.
     this.caleEvolution = new CaleEvolution()
+    this.learnListeners()
   }
 
   /**
@@ -37,10 +38,8 @@ class HopLearn extends EventEmitter {
   *
   */
   coordinateAI = function (task) {
-    console.log('where to route message to?')
-    console.log(task)
-    if (task.type === 'evolution') {
-
+    if (task.task === 'cale-evolution') {
+      this.caleEvolution.CALEflow(task)
     } else if (task.type === 'llm') {
 
     } else if (task.type === 'llm-timeseries') {
@@ -55,7 +54,9 @@ class HopLearn extends EventEmitter {
   *
   */
   learnListeners = function () {
-
+    this.caleEvolution.on('cale-evolution', (data) => {
+      this.emit('hop-learn', data)
+    })
   }
 
 }
