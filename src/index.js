@@ -11,13 +11,15 @@
 */
 import EventEmitter from 'events'
 import CaleEvolution from 'cale-evolution'
+import CaleGPT4ALL from 'cale-gtp4all'
 
 class HopLearn extends EventEmitter {
 
   constructor() {
     super()
     this.caleEvolution = {}
-    this.openOrchestra()
+    this.LLMlocal = {}
+    // this.openOrchestra()
   }
 
   /**
@@ -25,24 +27,31 @@ class HopLearn extends EventEmitter {
   * @method openOrchestra
   *
   */
-  openOrchestra = function () {
-    console.log('conductor bring ML local to be')
+  openOrchestra = async function (agent) {
     // need a dynamtic way to do this, just like system in ECS.
-    this.caleEvolution = new CaleEvolution()
-    this.learnListeners()
+    if (agent === 'cale-evolution') {
+      this.caleEvolution = new CaleEvolution()
+      this.learnListeners()
+    } else if (agent === 'cale-gpt4all') {
+      this.LLMlocal = new CaleGPT4ALL()
+      this.learnListenersLLM()
+      await this.LLMlocal.tobeAgents()
+    } else {
+      console.log('no agent sorry')
+    }
   }
 
   /**
   * coordinate the to right AI
-  * @method coordinateAI
+  * @method coordinateAgents
   *
   */
-  coordinateAI = function (task) {
-    if (task.task === 'cale-evolution') {
-      this.caleEvolution.CALEflow(task)
-    } else if (task.type === 'llm') {
+  coordinateAgents = function (message) {
+    if (message.task === 'cale-evolution') {
+      this.caleEvolution.CALEflow(message)
+    } else if (message.task === 'llm') {
 
-    } else if (task.type === 'llm-timeseries') {
+    } else if (message.task === 'llm-timeseries') {
 
     }
 
@@ -55,6 +64,18 @@ class HopLearn extends EventEmitter {
   */
   learnListeners = function () {
     this.caleEvolution.on('cale-evolution', (data) => {
+      this.emit('hop-learn', data)
+    })
+    this.caleEvolution.askCALE()
+  }
+
+  /**
+  * listen for message back to BeeBee
+  * @method learnListeners
+  *
+  */
+  learnListenersLLM = function () {
+    this.LLMlocal.on('cale-gpt4all', (data) => {
       this.emit('hop-learn', data)
     })
   }

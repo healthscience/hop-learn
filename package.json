@@ -1,6 +1,6 @@
 {
   "name": "hop-learn",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "conduct local ML",
   "type": "module",
   "main": "src/index.js",
@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/healthscience/hop-learn#readme",
   "dependencies": {
-    "cale-evolution": "^0.0.9"
+    "cale-evolution": "^0.0.9",
+    "cale-gtp4all": "^0.0.1"
   }
 }
