@@ -1,6 +1,6 @@
 {
   "name": "hop-learn",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "conduct local ML",
   "type": "module",
   "main": "src/index.js",
