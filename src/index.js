@@ -46,11 +46,11 @@ class HopLearn extends EventEmitter {
   * @method coordinateAgents
   *
   */
-  coordinateAgents = function (message) {
+  coordinateAgents = async function (message) {
     if (message.task === 'cale-evolution') {
       this.caleEvolution.CALEflow(message)
-    } else if (message.task === 'llm') {
-
+    } else if (message.action === 'question') {
+      await this.LLMlocal.incomingMessage(message)
     } else if (message.task === 'llm-timeseries') {
 
     }
@@ -76,7 +76,11 @@ class HopLearn extends EventEmitter {
   */
   learnListenersLLM = function () {
     this.LLMlocal.on('cale-gpt4all', (data) => {
-      this.emit('hop-learn', data)
+      if (data.task === 'response') {
+        this.emit('hop-learn-response', data)
+      } else {
+        this.emit('hop-learn', data)
+      }
     })
   }
 
