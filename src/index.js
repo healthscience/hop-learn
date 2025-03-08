@@ -23,19 +23,33 @@ class HopLearn extends EventEmitter {
   }
 
   /**
-  * connect to local ML's default
+  * connect to default LLM available
   * @method openOrchestra
   *
   */
-  openOrchestra = async function (agent) {
+  openOrchestra = function (agent) {
+    this.LLMlocal = new CaleGPT4ALL()
+    this.learnListenersLLM()
+    // ask for LLM available
+    let modelsAvailable = this.LLMlocal.ModelsLLM()
+    this.emit('hop-learn-models', { type: 'hop-learn', action: 'cale-gpt4all', task: 'models', data: modelsAvailable })
+  }
+  /**
+  * connect to local ML's default
+  * @method openAgent
+  *
+  */
+  openAgent = async function (agent) {
+    console.log('start of agents')
+    console.log(agent)
     // need a dynamtic way to do this, just like system in ECS.
-    if (agent === 'cale-evolution') {
+    if (agent.agent === 'cale-evolution') {
       this.caleEvolution = new CaleEvolution()
       this.learnListeners()
-    } else if (agent === 'cale-gpt4all') {
-      this.LLMlocal = new CaleGPT4ALL()
-      this.learnListenersLLM()
-      await this.LLMlocal.tobeAgents()
+    } else if (agent.agent === 'cale-gpt4all') {
+      // get default LLM Model and start
+      // match model type TODO get more detail info on setup e.g. gpu cpu
+      await this.LLMlocal.tobeAgents(agent.model, 'cpu')
     } else {
       console.log('no agent sorry')
     }
