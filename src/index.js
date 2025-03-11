@@ -40,8 +40,6 @@ class HopLearn extends EventEmitter {
   *
   */
   openAgent = async function (agent) {
-    console.log('start of agents')
-    console.log(agent)
     // need a dynamtic way to do this, just like system in ECS.
     if (agent.agent === 'cale-evolution') {
       this.caleEvolution = new CaleEvolution()
@@ -62,7 +60,7 @@ class HopLearn extends EventEmitter {
   */
   closeOrchestra = function (agent) {
     // need a dynamtic way to do this, just like system in ECS.
-    if (agent === 'cale-evolution') {
+    if (agent.agent === 'cale-evolution') {
       this.caleEvolution.removeAllListeners()
       this.caleEvolution = {}
       // send message to beebee to ask peer to start agent
@@ -72,14 +70,15 @@ class HopLearn extends EventEmitter {
       outFlow.task = 'closed'
       outFlow.data = { name: 'cale-evolution', status: 'closed'}
       this.emit('hop-learn', outFlow)
-    } else if (agent === 'cale-gpt4all') {
-      this.LLMlocal.removeAllListeners()
-      this.LLMlocal = {}
+    } else if (agent.agent === 'cale-gpt4all') {
+      // blunt need to close model but remain open for other model selection TODO
+      // this.LLMlocal.removeAllListeners()
+      // this.LLMlocal = {}
       let outFlow = {}
       outFlow.type = 'hop-learn'
       outFlow.action = 'cale-gpt4all'
       outFlow.task = 'closed'
-      outFlow.data = { name: 'cale-gpt4all', status: 'closed'}
+      outFlow.data = { name: 'cale-gpt4all', model: agent.model, status: 'closed'}
       this.emit('hop-learn', outFlow)
     } else {
       console.log('no agent sorry')
