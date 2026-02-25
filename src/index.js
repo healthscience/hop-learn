@@ -10,8 +10,6 @@
 * @version    $Id$
 */
 import EventEmitter from 'events'
-import CaleEvolution from 'cale-evolution'
-import CaleGPT4ALL from 'cale-gtp4all'
 
 class HopLearn extends EventEmitter {
 
@@ -28,11 +26,7 @@ class HopLearn extends EventEmitter {
   *
   */
   openOrchestra = function (agent) {
-    this.LLMlocal = new CaleGPT4ALL()
-    this.learnListenersLLM()
-    // ask for LLM available
-    let modelsAvailable = this.LLMlocal.ModelsLLM()
-    this.emit('hop-learn-models', { type: 'hop-learn', action: 'cale-gpt4all', task: 'models', data: modelsAvailable })
+
   }
   /**
   * connect to local ML's default
@@ -42,12 +36,10 @@ class HopLearn extends EventEmitter {
   openAgent = async function (agent) {
     // need a dynamtic way to do this, just like system in ECS.
     if (agent.agent === 'cale-evolution') {
-      this.caleEvolution = new CaleEvolution()
       this.learnListeners()
     } else if (agent.agent === 'cale-gpt4all') {
       // get default LLM Model and start
       // match model type TODO get more detail info on setup e.g. gpu cpu
-      await this.LLMlocal.tobeAgents(agent.model, 'cpu')
     } else {
       console.log('no agent sorry')
     }
@@ -61,8 +53,6 @@ class HopLearn extends EventEmitter {
   closeOrchestra = function (agent) {
     // need a dynamtic way to do this, just like system in ECS.
     if (agent.agent === 'cale-evolution') {
-      this.caleEvolution.removeAllListeners()
-      this.caleEvolution = {}
       // send message to beebee to ask peer to start agent
       let outFlow = {}
       outFlow.type = 'hop-learn'
@@ -100,11 +90,10 @@ class HopLearn extends EventEmitter {
     }
     if (activeCheck === true) {
       if (message.task === 'cale-evolution') {
-        this.caleEvolution.CALEflow(message)
+
       } else if (message.action === 'question') {
-        await this.LLMlocal.incomingMessage(message)
+
       } else if (message.task === 'cale-gpt4all-rag') {
-        await this.LLMlocal.prepareRAG(message)
 
       } else if (message.task === 'llm-timeseries') {
 
@@ -126,11 +115,6 @@ class HopLearn extends EventEmitter {
   *
   */
   learnListeners = function () {
-    this.caleEvolution.on('cale-evolution', (data) => {
-      this.activeList.push(data)
-      this.emit('hop-learn', data)
-    })
-    this.caleEvolution.askCALE()
   }
 
   /**
@@ -139,16 +123,6 @@ class HopLearn extends EventEmitter {
   *
   */
   learnListenersLLM = function () {
-    this.LLMlocal.on('cale-gpt4all', (data) => {
-      if (data.task === 'response') {
-        this.emit('hop-learn-response', data)
-      } else if (data.task === 'embedded') {
-        this.emit('hop-learn-embedded', data)
-      } else {
-        this.emit('hop-learn', data)
-        this.activeList.push(data)
-      }
-    })
   }
 
 }
