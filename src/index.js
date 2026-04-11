@@ -10,6 +10,7 @@
 * @version    $Id$
 */
 import EventEmitter from 'events'
+import LifeMapping from './lifepatterns/magneticMapper.js'
 
 class HopLearn extends EventEmitter {
 
@@ -17,17 +18,20 @@ class HopLearn extends EventEmitter {
     super()
     this.activeList = []
     this.caleEvolution = {}
+    this.lifeMapper = new LifeMapping()
     this.LLMlocal = {}
   }
 
   /**
-  * connect to default LLM available
-  * @method openOrchestra
+  * route to interplay patterns
+  * @method lifeFlow
   *
   */
-  openOrchestra = function (agent) {
-
+  lifeFlow = function (story, pattern) {
+    let lifePattern = this.lifeMapper.mapStoryTopattern(story, pattern)
+    return lifePattern
   }
+
   /**
   * connect to local ML's default
   * @method openAgent
