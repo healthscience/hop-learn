@@ -3,7 +3,7 @@
  * The 'Brain' of the Interplay. 
  * Orchestrates the snap-to-grid logic between Story fragments and pattern slots.
  */
-import InterplayLoom from './InterplayLoom.js';
+import InterplayLoom from './interplayLoom.js';
 import patternRegistry from './patternRegistry.js';
 
 class MagneticMapper {
