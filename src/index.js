@@ -11,13 +11,14 @@
  */
 import EventEmitter from "events";
 import LifeMapping from "./lifepatterns/magneticMapper.js";
+import patternRegistry from './lifepatterns/patternRegistry.js';
 
 class HopLearn extends EventEmitter {
   constructor() {
     super();
     this.activeList = [];
     this.caleEvolution = {};
-    this.lifeMapper = LifeMapping;
+    this.mapper = LifeMapping;
     this.LLMlocal = {};
   }
 
@@ -25,11 +26,19 @@ class HopLearn extends EventEmitter {
    * route to interplay patterns
    * @method lifeFlow
    *
-   */
-  lifeFlow = function (story, pattern) {
-    let lifePattern = this.lifeMapper.mapStoryTopattern(story, pattern);
-    return lifePattern;
-  };
+  */
+  lifeFlow(story, patternName) {
+    const patternTemplate = patternRegistry[patternName];
+    
+    // Ensure the template exists and has slots before passing it to the mapper
+    if (!patternTemplate) {
+      throw new Error(`Pattern ${patternName} not found in registry.`);
+    }
+
+    // If you are using classes for patterns, ensure it's instantiated. 
+    // If it's just a JSON object, ensure it matches: { name: "HomeoRange", slots: [...] }
+    return this.mapper.mapStoryTopattern(story, patternTemplate);
+  }
 
   /**
    * connect to local ML's default
