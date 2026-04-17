@@ -37,7 +37,7 @@ class HopLearn extends EventEmitter {
 
     // If you are using classes for patterns, ensure it's instantiated. 
     // If it's just a JSON object, ensure it matches: { name: "HomeoRange", slots: [...] }
-    return this.mapper.mapStoryTopattern(story, patternTemplate);
+    return this.mapper.mapStoryToTexture(story, patternTemplate);
   }
 
   /**

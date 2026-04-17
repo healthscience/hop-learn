@@ -6,14 +6,28 @@
 class InterplayLoom {
   constructor() {
     // Universal Archetypes: Patterns that appear in any peer story
-    this.archetypes = {
-      quantity: /(\d+(?:\.\d+)?)\s*([a-zA-Z%µg/]+)?/gi, // Updated to make units optional for things like '400IM' or '65'
-      chronos: /(\d{1,2}:\d{2})|(\d+\s*(sec|min|hr|ms|seconds|minutes))/gi,
-      temporal: /\b(age|aged|years|at|cycle)\s*(\d+)\b/gi, // NEW: Catches "aged 65"
-      context: /(@[\w-]+)/gi,
-      logic: /\b(if|then|when|not|equals|greater|less)\b/gi,
-      intent: /\b(swim|run|longevity|health|stability|balance)\b/gi // NEW: Semantic anchors from Library
-    };
+  this.archetypes = {
+    // H - HELI: Captured as Trigger + Number OR Number + Heli-Unit
+    heli: /\b(age|aged|at|orbit|arc|cycle|day)s?\s*(\d+(?:\.\d+)?)\b|\b(\d+(?:\.\d+)?)\s*(orbit|arc|cycle|day)s?\b/gi,
+
+    // C - CAPACITY: Captured as Number + Short Unit (Physics/Biology)
+    // Matches "400IM", "80bpm", "10km", "50m"
+    capacity: /\b(\d+(?:\.\d+)?)\s*([a-z]{1,5}|IM|bpm)\b/gi,
+
+    // C - HEART: Captured as Intent Trigger + Substantive
+    // Matches "for longevity", "target health", "maintain flow"
+    heart: /\b(target|goal|intent|for|maintain|aim|of)\s+([a-z]{3,})\b/gi,
+
+    // C - CONTEXT: Captured as Action Trigger + Activity OR @Tag
+    // Matches "to swim", "will practice", "@pool"
+    context: /\b(to|will|start|practice|do|at|with)\s+([a-z]{3,})\b|(@[\w-]+)/gi,
+
+    // C - COHERENCE: Logical connectors (The "Rules")
+    logic: /\b(if|then|when|not|so|because|stable|sync|balance)\b/gi,
+
+    // QUANTITY: The Safety Net (Run this last)
+    quantity: /(\d+(?:\.\d+)?)/g
+  };
 
     this.activepattern = null;
     this.contextualBuffer = [];
@@ -25,60 +39,74 @@ class InterplayLoom {
   }
 
   // The Reflex: Instant identification of data shapes
-  regPass(story) {
+  texturize(story) {
+    // 1. TOKENIZE & CLEAN (The Workflow Step)
+    const fragments = story.split(/\s+/).map(token => ({
+      original: token,
+      // Remove trailing punctuation only for the regex test
+      matchable: token.replace(/[.,!?;:]+$/, "").toLowerCase(),
+      claimed: false,
+      pillar: null
+    }));
+
+    // 2. ORDERED EXTRACTION
+    // We run Heli and Capacity first because they are the most "rigid"
     const findings = [];
-    let consumedMap = new Array(story.length).fill(false);
+    findings.push(...this.extract(fragments, 'heli', this.archetypes.heli));
+    findings.push(...this.extract(fragments, 'capacity', this.archetypes.capacity));
+    
+    // Then Heart and Context (The Trigger-based ones)
+    findings.push(...this.extract(fragments, 'heart', this.archetypes.heart));
+    findings.push(...this.extract(fragments, 'context', this.archetypes.context));
 
-    for (const [type, regex] of Object.entries(this.archetypes)) {
-      let match;
-      while ((match = regex.exec(story)) !== null) {
-        findings.push({ type, value: match[0], index: match.index });
-        // Mark these characters as "seen"
-        for (let i = 0; i < match[0].length; i++) {
-          consumedMap[match.index + i] = true;
-        }
-      }
-    }
+    // 3. RESIDUE COLLECTION
+    const residue = fragments
+      .filter(f => !f.claimed)
+      .map(f => f.matchable);
 
-    // Extract "Unmapped Fragments" (Words not caught by any regex)
-    const unmapped = story
-      .split(/\s+/)
-      .filter(word => !findings.some(f => f.value.includes(word)) && word.length > 3);
-
-    return { findings, unmapped };
+    return { 
+      findings, 
+      unmapped: residue 
+    };
   }
 
-  // The Weave: Mapping Story fragments to pattern slots
-  weave(story) {
-    const { findings, unmapped } = this.regPass(story);
-    
-    const mappedSlots = this.activepattern.slots.map(slot => {
-      let match = null;
+  /**
+   * Helper to extract patterns from fragments.
+   */
+  extract(fragments, type, regex) {
+    const results = [];
+    const fullText = fragments.map(f => f.matchable).join(" ");
+    let match;
 
-      // 1. Try to find by archetype requirement
-      if (slot.archetype) {
-        match = findings.find(f => f.type === slot.archetype);
-      }
+    // Reset regex lastIndex if global
+    if (regex.global) regex.lastIndex = 0;
 
-      // 2. FALLBACK: If slot is 'Target' and empty, pluck from 'Intent' or 'Unmapped'
-      if (!match && slot.label === "Target") {
-        const candidate = findings.find(f => f.type === 'intent') || { value: unmapped[0] };
-        match = candidate;
-      }
+    while ((match = regex.exec(fullText)) !== null) {
+      // Find which fragments this match belongs to
+      // Simplified: just find the index in the fragments
+      const matchText = match[0];
+      const matchIndex = match.index;
 
-      return {
-        ...slot,
-        value: match ? match.value : null,
-        stable: !!match
-      };
-    });
+      // Mark fragments as claimed
+      let currentPos = 0;
+      fragments.forEach((f, i) => {
+        const start = currentPos;
+        const end = start + f.matchable.length;
+        
+        if (matchIndex >= start && matchIndex < end) {
+          f.claimed = true;
+          f.pillar = type;
+        }
+        currentPos = end + 1; // +1 for the space
+      });
 
-    return {
-      patternName: this.activepattern.name,
-      weave: mappedSlots,
-      candidates: unmapped, // The "Bubbles" for the Lens
-      stabilityScore: mappedSlots.filter(s => s.stable).length / mappedSlots.length
-    };
+      results.push({
+        type,
+        value: matchText,
+        index: matchIndex
+      });
+    }
+    return results;
   }
 
   // The Dissonance Tracker: Identifies what BeeBee needs to ask

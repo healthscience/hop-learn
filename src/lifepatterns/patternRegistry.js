@@ -6,12 +6,13 @@ const patternRegistry = {
   // 1. Biological Balance / Thresholds
   HomeoRange: {
     name: "HomeoRange",
-    description: "Monitors biological stability via Ceiling and Floor thresholds.",
-    operators: ["GREATER THAN", "LESS THAN"],
+    description: "Monitors biological stability across the 3C+H pillars.",
+    operators: ["STABLE", "DECAY", "RESONATE"],
     slots: [
-      { label: "Target", archetype: "context", required: true }, // e.g. @glucose
-      { label: "Floor", archetype: "quantity", required: true },  // e.g. 70mg/dL
-      { label: "Ceiling", archetype: "quantity", required: true } // e.g. 140mg/dL
+      { label: "Target", archetype: "heart", required: true },    // e.g. longevity
+      { label: "Horizon", archetype: "heli", required: true },     // e.g. age 65
+      { label: "Floor", archetype: "capacity", required: true },  // e.g. 400IM
+      { label: "Activity", archetype: "activity", required: false } // e.g. swim
     ]
   },
 

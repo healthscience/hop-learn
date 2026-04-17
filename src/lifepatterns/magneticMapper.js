@@ -15,7 +15,7 @@ class MagneticMapper {
    * Performs the "Consilience Weave"
    * Maps findings from the Story to the active pattern's slots.
   */
-  mapStoryTopattern(story, pattern) {
+  mapStoryToTexture(story, pattern) {
     // 1. Guard against empty pattern or missing slots
     if (!pattern || !pattern.slots) {
       console.error("[MagneticMapper] Invalid pattern provided:", pattern);
@@ -23,17 +23,17 @@ class MagneticMapper {
     }
 
     // 2. Destructure the Loom results
-    const { findings, unmapped } = this.loom.regPass(story);
+    const { findings, unmapped } = this.loom.texturize(story);
 
     // 3. Perform the map
-    const mappedSlots = pattern.slots.map(slot => {
+    const alignments = pattern.slots.map(slot => {
       return this._findBestFit(slot, findings, story); 
     });
 
     return {
       pattern: pattern.name,
-      slots: mappedSlots,
-      isStable: mappedSlots.every(s => s.value !== null),
+      slots: alignments,
+      isStable: alignments.every(s => s.value !== null),
       unmappedFragments: unmapped 
     };
   }
